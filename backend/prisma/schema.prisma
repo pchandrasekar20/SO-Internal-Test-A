@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Stock {
+  id        String   @id @default(cuid())
+  symbol    String   @unique
+  name      String
+  sector    String?
+  industry  String?
+  marketCap Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  peRatio         PERatio[]
+  historicalPrice HistoricalPrice[]
+
+  @@index([symbol])
+  @@map("stocks")
+}
+
+model PERatio {
+  id        String   @id @default(cuid())
+  stockId   String
+  stock     Stock    @relation(fields: [stockId], references: [id], onDelete: Cascade)
+  ratio     Float
+  date      DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([stockId, date])
+  @@index([stockId])
+  @@index([ratio])
+  @@index([date])
+  @@map("pe_ratios")
+}
+
+model HistoricalPrice {
+  id        String   @id @default(cuid())
+  stockId   String
+  stock     Stock    @relation(fields: [stockId], references: [id], onDelete: Cascade)
+  open      Float
+  high      Float
+  low       Float
+  close     Float
+  volume    Int
+  date      DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([stockId, date])
+  @@index([stockId])
+  @@index([date])
+  @@index([close])
+  @@map("historical_prices")
+}

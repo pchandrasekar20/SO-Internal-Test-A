@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.test
+.DS_Store
+*.log
+logs/
+.vscode/
+.idea/
+coverage/
+.next/
+out/
+build/
+*.pem
+.prisma/
