@@ -1,6 +1,6 @@
 # Stocks API Backend
 
-Node.js/Express backend with TypeScript, Prisma, and PostgreSQL for stock analysis.
+Node.js/Express backend with TypeScript, Prisma, and PostgreSQL for stock analysis. Includes ETL pipeline for fetching stock data from Finnhub API.
 
 ## Quick Start
 
@@ -16,11 +16,17 @@ npm install
 cp .env.example .env
 ```
 
-Edit `.env` with your PostgreSQL connection:
+Edit `.env` with your PostgreSQL connection and API keys:
 
 ```
 DATABASE_URL="postgresql://user:password@localhost:5432/stocks_db"
+FINNHUB_API_KEY="your_api_key_from_finnhub.io"
+ALPHA_VANTAGE_API_KEY="your_api_key_from_alphavantage.co"
+ETL_BATCH_SIZE=10
+ETL_RATE_LIMIT_MS=100
 ```
+
+**Note**: Finnhub API keys are free at https://finnhub.io/register
 
 ### Setup Database
 
@@ -75,6 +81,12 @@ npm run db:generate    # Generate Prisma client
 npm run db:migrate     # Run migrations
 npm run db:reset       # Reset database
 npm run db:seed        # Seed data
+
+# ETL commands (Data pipeline)
+npm run etl:symbols        # Fetch stock symbols
+npm run etl:fundamentals   # Fetch PE ratios and market cap
+npm run etl:prices         # Fetch historical prices (730 days by default)
+npm run etl:run            # Run complete pipeline
 ```
 
 ## Project Layout
@@ -83,7 +95,13 @@ npm run db:seed        # Seed data
 src/
 ├── __tests__/              # Jest tests
 │   ├── controllers/        # Controller tests
+│   ├── services/           # Service tests
 │   └── utils/              # Test utilities
+├── cli/                    # CLI commands for ETL
+│   ├── etl-symbols.ts     # Fetch stock symbols
+│   ├── etl-fundamentals.ts # Fetch fundamentals
+│   ├── etl-prices.ts      # Fetch historical prices
+│   └── etl-full.ts        # Run complete pipeline
 ├── controllers/            # Request handlers
 ├── db/                     # Database setup
 │   ├── client.ts          # Prisma client
@@ -96,12 +114,17 @@ src/
 ├── routes/                 # API routes
 │   └── stocks.ts          # Stock endpoints
 ├── services/               # Business logic
-│   └── stocksService.ts   # Stock operations
+│   ├── stocksService.ts   # Stock queries
+│   ├── etlService.ts      # ETL pipeline
+│   ├── etlScheduler.ts    # ETL scheduler
+│   ├── finnhubClient.ts   # Finnhub API client
+│   └── alphaVantageClient.ts # Alpha Vantage client
 ├── utils/                  # Utilities
 │   ├── errors.ts          # Error classes
 │   ├── logger.ts          # Winston logger
 │   ├── pagination.ts      # Pagination helpers
-│   └── validation.ts      # Input validation
+│   ├── validation.ts      # Input validation
+│   └── rateLimiter.ts     # API rate limiter
 ├── app.ts                  # Express app
 └── index.ts               # Server entry
 ```
@@ -223,6 +246,47 @@ Logs are written to `logs/` directory:
 Set `LOG_LEVEL` env var to control log level (debug, info, warn, error).
 
 In development, logs also print to console.
+
+## ETL Pipeline (Data Import)
+
+The backend includes an ETL pipeline to automatically fetch stock data from Finnhub API.
+
+### Running ETL Jobs
+
+```bash
+# Fetch all US stock symbols
+npm run etl:symbols
+
+# Fetch fundamentals (PE ratios, market cap)
+npm run etl:fundamentals
+
+# Fetch historical prices (default: 730 days / 2 years)
+npm run etl:prices
+
+# Run all three steps together
+npm run etl:run
+```
+
+### Scheduling ETL
+
+For production, schedule the ETL to run regularly:
+
+**Using Cron (Linux/Mac)**:
+```bash
+# Add to crontab -e
+0 2 * * * cd /path/to/backend && npm run etl:run >> logs/etl.log 2>&1
+```
+
+**Using Docker**:
+```dockerfile
+FROM node:18
+WORKDIR /app
+COPY . .
+RUN npm install && npm run build
+CMD ["npm", "run", "etl:run"]
+```
+
+See [ETL.md](./ETL.md) for detailed documentation on the data pipeline.
 
 ## Development Tips
 

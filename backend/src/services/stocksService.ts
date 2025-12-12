@@ -2,7 +2,6 @@ import prisma from '@/db/client';
 import { NotFoundError, InternalServerError } from '@/utils/errors';
 import { PaginationParams, createPaginatedResponse } from '@/utils/pagination';
 import { SortOrder } from '@/utils/validation';
-import { Prisma } from '@prisma/client';
 
 export interface StockWithPERatio {
   id: string;
@@ -29,7 +28,7 @@ export async function getStocksWithLowestPE(
   filters: Record<string, string | undefined>
 ) {
   try {
-    const where: Prisma.StockWhereInput = {};
+    const where: Record<string, unknown> = {};
 
     if (filters.sector) {
       where.sector = filters.sector;
@@ -71,8 +70,8 @@ export async function getStocksWithLowestPE(
     const total = await prisma.stock.count({ where });
 
     const formattedStocks: StockWithPERatio[] = stocks
-      .filter((s) => s.peRatio.length > 0)
-      .map((s) => ({
+      .filter((s: any) => s.peRatio.length > 0)
+      .map((s: any) => ({
         id: s.id,
         symbol: s.symbol,
         name: s.name,
@@ -99,7 +98,7 @@ export async function getStocksWithLargestDeclines(
   filters: Record<string, string | undefined>
 ) {
   try {
-    const where: Prisma.StockWhereInput = {};
+    const where: Record<string, unknown> = {};
 
     if (filters.sector) {
       where.sector = filters.sector;
@@ -129,8 +128,8 @@ export async function getStocksWithLargestDeclines(
     const total = await prisma.stock.count({ where });
 
     const formattedStocks: StockWithPriceChange[] = stocks
-      .filter((s) => s.historicalPrice.length >= 2)
-      .map((s) => {
+      .filter((s: any) => s.historicalPrice.length >= 2)
+      .map((s: any) => {
         const [latest, previous] = s.historicalPrice;
         const priceChange =
           ((latest.close - previous.close) / previous.close) * 100;
@@ -144,7 +143,7 @@ export async function getStocksWithLargestDeclines(
           priceChange,
         };
       })
-      .sort((a, b) => {
+      .sort((a: any, b: any) => {
         if (sortBy === 'priceChange') {
           return sortOrder === 'asc'
             ? a.priceChange - b.priceChange
