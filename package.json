@@ -4,13 +4,23 @@
   "description": "Stock API with low PE ratios and largest declines analysis",
   "private": true,
   "workspaces": [
-    "backend"
+    "backend",
+    "frontend"
   ],
   "scripts": {
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
     "install-backend": "cd backend && npm install",
+    "install-frontend": "cd frontend && npm install",
     "dev": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:frontend\"",
     "build": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "build:all": "npm run build && npm run build:frontend",
     "test": "cd backend && npm test",
-    "test:coverage": "cd backend && npm run test:coverage"
+    "test:frontend": "cd frontend && npm test",
+    "test:all": "npm test && npm run test:frontend",
+    "test:coverage": "cd backend && npm run test:coverage",
+    "test:coverage:frontend": "cd frontend && npm run test:coverage"
   }
 }
