@@ -1,0 +1,71 @@
+version: '3.8'
+
+# Development environment with hot reload and local file mounting
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: stocks-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: stocks_db
+      POSTGRES_USER: stocks_user
+      POSTGRES_PASSWORD: stocks_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - stocks-network-dev
+
+  # Backend API Service (Development)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: stocks-backend-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://stocks_user:stocks_password@postgres:5432/stocks_db
+      PORT: 3000
+      LOG_LEVEL: debug
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - stocks-network-dev
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - backend_logs:/app/logs
+
+  # Frontend Service (Development)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: stocks-frontend-dev
+    environment:
+      VITE_API_URL: http://localhost:3000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - stocks-network-dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+networks:
+  stocks-network-dev:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  backend_logs:

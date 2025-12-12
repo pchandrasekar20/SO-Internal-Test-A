@@ -1,5 +1,15 @@
 # Deployment Guide
 
+## Quick Start with Docker
+
+**For the fastest deployment, see [CONTAINERIZED_DEPLOYMENT.md](./CONTAINERIZED_DEPLOYMENT.md)** which provides:
+- One-command Docker deployment
+- Development and production environments
+- Automated testing and health checks
+- Cloud deployment guides
+
+This guide covers both containerized and traditional deployments.
+
 ## Prerequisites
 
 - Node.js 18+ installed
@@ -165,35 +175,22 @@ LOG_LEVEL="warn"
 
 ## Docker Deployment (Optional)
 
-Create a `Dockerfile` in backend directory:
+**For full Docker deployment with multiple services and orchestration, see [CONTAINERIZED_DEPLOYMENT.md](./CONTAINERIZED_DEPLOYMENT.md)**.
 
-```dockerfile
-FROM node:18-alpine
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci --only=production
-
-COPY dist ./dist
-COPY prisma ./prisma
-
-EXPOSE 3000
-
-CMD ["npm", "start"]
-```
-
-Build and run:
+Simple single-container deployment:
 
 ```bash
-# Build image
-docker build -t stocks-api:1.0.0 .
+# Build backend image
+cd backend
+docker build -t stocks-backend:latest .
 
-# Run container
+# Run backend container
 docker run -p 3000:3000 \
   -e DATABASE_URL="postgresql://user:pass@host:5432/db" \
-  stocks-api:1.0.0
+  stocks-backend:latest
 ```
+
+This starts just the backend API. For a complete deployment including frontend, database, and automated deployment scripts, use the containerized deployment guide.
 
 ## Logging
 
