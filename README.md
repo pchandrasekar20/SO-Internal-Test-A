@@ -1,9 +1,16 @@
-# Stocks API
+# Stocks API & Dashboard
 
-A Node.js/Express backend API for analyzing stocks with focus on low PE ratios and largest price declines.
+A full-stack Node.js/Express backend API and React frontend dashboard for analyzing stocks with focus on low PE ratios and largest price declines.
+
+## 🎯 Project Overview
+
+- **Backend**: Express.js REST API with TypeScript and PostgreSQL
+- **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
+- **Full-stack**: Integrated frontend and backend for complete stock analysis dashboard
 
 ## Features
 
+### Backend
 - 🚀 Node.js/Express server with TypeScript
 - 📊 PostgreSQL database via Prisma ORM
 - 📖 OpenAPI/Swagger documentation
@@ -12,28 +19,52 @@ A Node.js/Express backend API for analyzing stocks with focus on low PE ratios a
 - 🔒 Error handling and validation middleware
 - 📝 Winston logging
 
+### Frontend
+- 💎 React 18 with TypeScript
+- 🎨 Tailwind CSS for responsive design
+- 📱 Mobile-first responsive layout
+- 🔄 Real-time data with auto-refresh polling
+- 🔍 Advanced search and filtering
+- ♿ Full accessibility (ARIA labels, semantic HTML)
+- 📊 Interactive tables with sorting
+- 📄 Pagination with configurable page sizes
+- ✅ 27 unit tests with Vitest
+
 ## Project Structure
 
 ```
-backend/
-├── src/
-│   ├── __tests__/          # Test files
-│   ├── controllers/        # Request handlers
-│   ├── db/                 # Database client and seed
-│   ├── docs/               # API documentation
-│   ├── middleware/         # Express middleware
-│   ├── routes/             # API routes
-│   ├── services/           # Business logic
-│   ├── utils/              # Utilities
-│   ├── app.ts              # Express app setup
-│   └── index.ts            # Server entry point
-├── prisma/
-│   ├── schema.prisma       # Data models
-│   └── migrations/         # Database migrations
-├── .env.example            # Environment template
-├── jest.config.js          # Jest configuration
-├── tsconfig.json           # TypeScript configuration
-└── package.json            # Dependencies
+.
+├── backend/                    # Express.js API
+│   ├── src/
+│   │   ├── __tests__/         # Test files
+│   │   ├── controllers/       # Request handlers
+│   │   ├── db/                # Database client and seed
+│   │   ├── docs/              # API documentation
+│   │   ├── middleware/        # Express middleware
+│   │   ├── routes/            # API routes
+│   │   ├── services/          # Business logic
+│   │   ├── utils/             # Utilities
+│   │   ├── app.ts             # Express app setup
+│   │   └── index.ts           # Server entry point
+│   ├── prisma/
+│   │   ├── schema.prisma      # Data models
+│   │   └── migrations/        # Database migrations
+│   └── package.json
+│
+└── frontend/                   # React Dashboard
+    ├── src/
+    │   ├── __tests__/         # Unit tests
+    │   ├── api/               # API client layer
+    │   ├── components/        # Reusable components
+    │   ├── hooks/             # Custom React hooks
+    │   ├── pages/             # Page components
+    │   ├── App.tsx            # Main app component
+    │   └── main.tsx           # Entry point
+    ├── index.html
+    ├── vite.config.ts         # Vite configuration
+    ├── tailwind.config.js     # Tailwind CSS
+    ├── vitest.config.ts       # Test configuration
+    └── package.json
 ```
 
 ## Quick Start
@@ -44,57 +75,64 @@ backend/
 - PostgreSQL 12+
 - npm or yarn
 
-### Installation
+### Backend Setup
 
 ```bash
 cd backend
 npm install
-```
 
-### Environment Setup
-
-Create a `.env` file based on `.env.example`:
-
-```bash
+# Create a .env file based on .env.example
 cp .env.example .env
-```
 
-Update `DATABASE_URL` with your PostgreSQL connection string:
+# Update DATABASE_URL in .env with your PostgreSQL connection
+# DATABASE_URL="postgresql://user:password@localhost:5432/stocks_db"
 
-```
-DATABASE_URL="postgresql://user:password@localhost:5432/stocks_db"
-NODE_ENV="development"
-PORT=3000
-LOG_LEVEL="info"
-```
-
-### Database Setup
-
-```bash
-# Create database and run migrations
+# Setup database
 npm run db:migrate
-
-# Seed sample data
 npm run db:seed
-```
 
-### Development
-
-```bash
-# Start development server with hot reload
+# Start development server
 npm run dev
 ```
 
-The server will start on `http://localhost:3000`
+The backend will start on `http://localhost:3000`
+
+### Frontend Setup
+
+```bash
+cd frontend
+npm install
+
+# Start development server
+npm run dev
+```
+
+The frontend will start on `http://localhost:5173`
+
+### Run Both Together
+
+From the project root:
+
+```bash
+# Install all dependencies
+npm run install-all
+
+# Start both backend and frontend (requires concurrently)
+npm run dev:all
+
+# Or in separate terminals:
+npm run dev                # Backend on :3000
+npm run dev:frontend       # Frontend on :5173
+```
 
 ### Build
 
 ```bash
-# Compile TypeScript
-npm run build
+# Build backend
+cd backend && npm run build && npm start
 
-# Run compiled JavaScript
-npm start
+# Build frontend
+cd frontend && npm run build && npm run preview
 ```
 
 ## API Endpoints
@@ -191,17 +229,49 @@ Swagger/OpenAPI documentation is available at:
 http://localhost:3000/api-docs
 ```
 
+## Frontend Documentation
+
+For detailed frontend features and setup, see:
+
+- `FRONTEND_SETUP.md` - Complete frontend setup guide
+- `FRONTEND_FEATURES.md` - Comprehensive feature documentation
+- `frontend/README.md` - Frontend-specific information
+
+### Frontend Key Features
+
+- **Two Views**: Lowest P/E Ratios and Largest 2-Year Declines
+- **Interactive Tables**: Sortable, filterable, with pagination
+- **Real-time Updates**: Auto-refresh every 60 seconds with manual refresh
+- **Search & Filter**: By symbol, name, sector, or industry
+- **Responsive Design**: Mobile-first with Tailwind CSS
+- **Full Accessibility**: ARIA labels, semantic HTML, keyboard navigation
+- **Comprehensive Tests**: 27 unit tests covering all components
+
+### Frontend Stack
+
+- React 18 with TypeScript
+- Vite for fast development and optimized builds
+- Tailwind CSS for responsive styling
+- Vitest + React Testing Library for unit tests
+- Axios for API communication
+
 ## Testing
 
 ```bash
-# Run all tests
+# Backend tests
+cd backend
 npm test
-
-# Run tests in watch mode
 npm run test:watch
-
-# Generate coverage report
 npm run test:coverage
+
+# Frontend tests
+cd frontend
+npm test
+npm run test:watch
+npm run test:coverage
+
+# All tests
+npm run test:all
 ```
 
 ## Logging
